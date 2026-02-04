@@ -5,7 +5,9 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
+	"github.com/dgnsrekt/discorgeous-go/internal/api"
 	"github.com/dgnsrekt/discorgeous-go/internal/config"
 	"github.com/dgnsrekt/discorgeous-go/internal/logging"
 )
@@ -46,7 +48,26 @@ func main() {
 		cancel()
 	}()
 
+	// Create and start HTTP server
+	server := api.New(cfg, logger)
+
+	go func() {
+		if err := server.Start(); err != nil {
+			logger.Error("HTTP server error", "error", err)
+			cancel()
+		}
+	}()
+
 	// Wait for shutdown signal
 	<-ctx.Done()
-	logger.Info("shutting down")
+
+	// Graceful shutdown with timeout
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer shutdownCancel()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		logger.Error("failed to shutdown HTTP server", "error", err)
+	}
+
+	logger.Info("shutdown complete")
 }

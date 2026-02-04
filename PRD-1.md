@@ -61,9 +61,9 @@ Start with a proven Go Discord library voice sender path. If voice send is too b
 - [x] Add structured logging
 
 ### Task 2: HTTP enqueue API
-- [ ] Implement HTTP server + routes `/v1/speak`, `/v1/healthz`
-- [ ] Implement bearer auth middleware
-- [ ] Validate payload: max text length, TTL, queue capacity
+- [x] Implement HTTP server + routes `/v1/speak`, `/v1/healthz`
+- [x] Implement bearer auth middleware
+- [x] Validate payload: max text length, TTL, queue capacity
 
 ### Task 3: Queue + playback worker
 - [ ] Implement bounded queue and speak job type

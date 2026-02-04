@@ -25,3 +25,32 @@
 - `go test ./...` - PASSED
 - `go vet ./...` - PASSED
 - `gofmt -l .` - No issues (after formatting fix)
+
+## 2026-02-04: Task 2 - HTTP enqueue API
+
+### Completed:
+- Implemented HTTP server (`internal/api/server.go`) with:
+  - Server struct wrapping http.Server with config and logger
+  - Routes for `GET /v1/healthz` and `POST /v1/speak`
+  - Configurable read/write/idle timeouts
+  - Start() and Shutdown() methods for lifecycle management
+- Implemented bearer auth middleware (`internal/api/middleware.go`) with:
+  - `Authorization: Bearer <token>` header validation
+  - Case-insensitive "Bearer" prefix handling
+  - Skip auth when no BEARER_TOKEN is configured (dev-friendly)
+  - JSON error responses for auth failures
+- Implemented handlers (`internal/api/handlers.go`) with:
+  - SpeakRequest struct: text (required), voice, interrupt, ttl_ms, dedupe_key
+  - SpeakResponse struct: job_id, message
+  - Payload validation: required text, max text length, non-negative TTL
+  - Default voice fallback from config
+  - Placeholder job ID (actual queue integration in Task 3)
+- Updated main.go to start HTTP server with graceful shutdown
+- Wrote comprehensive tests:
+  - `internal/api/server_test.go`: Tests for healthz and speak endpoints
+  - `internal/api/middleware_test.go`: Tests for auth middleware scenarios
+
+### Verification:
+- `go test ./...` - PASSED
+- `go vet ./...` - PASSED
+- `gofmt -l .` - No issues
