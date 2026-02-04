@@ -78,10 +78,10 @@ Forwarded request body:
 - Use `httptest.Server` to validate outgoing requests to Discorgeous.
 
 ## Acceptance Checklist
-- [ ] `go test ./...` passes
-- [ ] `go vet ./...` passes
-- [ ] `gofmt -l .` is clean
-- [ ] `docker compose build` succeeds
+- [x] `go test ./...` passes
+- [x] `go vet ./...` passes
+- [x] `gofmt -l .` is clean
+- [x] `docker compose build` succeeds
 - [ ] With `docker compose up`, publishing a message to the configured ntfy topic results in a `POST /v1/speak` to Discorgeous (verified by logs and/or hearing audio in Discord)
 
 ## Test Plan (manual)
