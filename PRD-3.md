@@ -45,7 +45,7 @@ Forwarded request body:
 
 ## Implementation Plan
 
-### Task 1 — Relay client implementation (new cmd)
+### Task 1 — Relay client implementation (new cmd) ✅
 - Add `cmd/ntfy-relay/main.go` (or similar) implementing:
   - Config struct + env parsing (reuse patterns from `internal/config`, but keep relay simple).
   - Subscribe to ntfy JSON stream endpoint: `GET {NTFY_SERVER}/{topic}/json` (or streaming variant) and decode JSON objects.
