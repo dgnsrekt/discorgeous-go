@@ -53,9 +53,9 @@ Tighten up discorgeous-go based on PR review feedback by:
 - [x] Use timeouts only as test failsafes (e.g., context with deadline) rather than primary synchronization.
 
 ### Task 4: Code cleanup (dedupe helpers/errors)
-- [ ] Consolidate duplicate WAV little-endian helper functions into a shared internal utility.
-- [ ] Consolidate duplicate ErrSynthesisFailed definitions (or rename to be domain-specific).
-- [ ] Replace magic numbers with named constants where appropriate.
+- [x] Consolidate duplicate WAV little-endian helper functions into a shared internal utility.
+- [x] Consolidate duplicate ErrSynthesisFailed definitions (or rename to be domain-specific).
+- [x] Replace magic numbers with named constants where appropriate.
 
 ### Task 5: Voice connect/reconnect + shutdown reliability
 - [ ] Replace voice readiness polling with a context-aware wait (no unbounded loops).

@@ -14,8 +14,8 @@ import (
 var (
 	// ErrNoTTSEngine is returned when no TTS engine is available.
 	ErrNoTTSEngine = errors.New("no TTS engine available")
-	// ErrSynthesisFailed is returned when TTS synthesis fails.
-	ErrSynthesisFailed = errors.New("TTS synthesis failed")
+	// ErrPlaybackSynthesisFailed is returned when TTS synthesis fails during playback.
+	ErrPlaybackSynthesisFailed = errors.New("playback synthesis failed")
 	// ErrConversionFailed is returned when audio conversion fails.
 	ErrConversionFailed = errors.New("audio conversion failed")
 )
@@ -67,7 +67,7 @@ func (h *Handler) Handle(ctx context.Context, job *queue.SpeakJob) error {
 	})
 	if err != nil {
 		h.logger.Error("TTS synthesis failed", "job_id", job.ID, "error", err)
-		return errors.Join(ErrSynthesisFailed, err)
+		return errors.Join(ErrPlaybackSynthesisFailed, err)
 	}
 
 	h.logger.Debug("synthesis complete",

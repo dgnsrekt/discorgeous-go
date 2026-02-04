@@ -14,6 +14,17 @@ import (
 	"layeh.com/gopus"
 )
 
+const (
+	// voiceConnectTimeout is the maximum time to wait for voice connection readiness.
+	voiceConnectTimeout = 10 * time.Second
+	// voiceConnectPollInterval is the polling interval while waiting for connection.
+	voiceConnectPollInterval = 100 * time.Millisecond
+	// frameDuration is the duration of one Discord audio frame (20ms).
+	frameDuration = 20 * time.Millisecond
+	// maxOpusDataBytes is the maximum size of an encoded Opus frame.
+	maxOpusDataBytes = 4000
+)
+
 var (
 	// ErrNotConnected is returned when trying to send audio while not connected.
 	ErrNotConnected = errors.New("not connected to voice channel")
@@ -95,7 +106,7 @@ func (vm *VoiceManager) Connect(ctx context.Context) error {
 
 	// Wait for the voice connection to be ready
 	// discordgo's Ready is a bool, so we poll with timeout
-	deadline := time.Now().Add(10 * time.Second)
+	deadline := time.Now().Add(voiceConnectTimeout)
 	for {
 		if ctx.Err() != nil {
 			vc.Disconnect()
@@ -108,7 +119,7 @@ func (vm *VoiceManager) Connect(ctx context.Context) error {
 		if vc.Ready {
 			break
 		}
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(voiceConnectPollInterval)
 	}
 
 	vm.voiceConnection = vc
@@ -169,7 +180,7 @@ func (vm *VoiceManager) SendAudio(ctx context.Context, pcmData []byte) error {
 	}()
 
 	// Send frames with timing control
-	ticker := time.NewTicker(20 * time.Millisecond)
+	ticker := time.NewTicker(frameDuration)
 	defer ticker.Stop()
 
 	for {
@@ -216,7 +227,7 @@ func (vm *VoiceManager) encodeOpus(pcm []byte) ([]byte, error) {
 	// Encode to Opus
 	// frameSize: number of samples per channel (960 for 20ms at 48kHz)
 	// maxDataBytes: maximum size of output buffer
-	opus, err := vm.opusEncoder.Encode(samples, audio.DiscordFrameSize, 4000)
+	opus, err := vm.opusEncoder.Encode(samples, audio.DiscordFrameSize, maxOpusDataBytes)
 	if err != nil {
 		return nil, err
 	}

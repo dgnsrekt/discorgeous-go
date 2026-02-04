@@ -23,7 +23,7 @@ func TestErrors(t *testing.T) {
 		want string
 	}{
 		{ErrNoTTSEngine, "no TTS engine available"},
-		{ErrSynthesisFailed, "TTS synthesis failed"},
+		{ErrPlaybackSynthesisFailed, "playback synthesis failed"},
 		{ErrConversionFailed, "audio conversion failed"},
 	}
 
@@ -98,8 +98,8 @@ func TestHandler_Handle_SynthesisFails(t *testing.T) {
 	}
 
 	err := handler.Handle(context.Background(), job)
-	if !errors.Is(err, ErrSynthesisFailed) {
-		t.Errorf("Handle() error = %v, want ErrSynthesisFailed", err)
+	if !errors.Is(err, ErrPlaybackSynthesisFailed) {
+		t.Errorf("Handle() error = %v, want ErrPlaybackSynthesisFailed", err)
 	}
 	if engine.callCount != 1 {
 		t.Errorf("Synthesize called %d times, want 1", engine.callCount)

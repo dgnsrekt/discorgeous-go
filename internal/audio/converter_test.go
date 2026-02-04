@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"testing"
 	"time"
+
+	"github.com/dgnsrekt/discorgeous-go/internal/wav"
 )
 
 func TestNewConverter(t *testing.T) {
@@ -75,9 +77,9 @@ func TestConverter_ConvertToDiscordPCM_ContextCancel(t *testing.T) {
 	cancel()
 
 	// Create a minimal valid WAV (just header, no data)
-	wav := createMinimalWAV(0)
+	wavData := wav.CreateMinimalPiper(0)
 
-	_, err = conv.ConvertToDiscordPCM(ctx, wav)
+	_, err = conv.ConvertToDiscordPCM(ctx, wavData)
 	if err != context.Canceled {
 		t.Errorf("ConvertToDiscordPCM(cancelled) error = %v, want context.Canceled", err)
 	}
@@ -93,12 +95,12 @@ func TestConverter_ConvertToDiscordPCM_ValidWAV(t *testing.T) {
 
 	// Create a minimal valid WAV with some samples
 	// 100 samples at 22050 Hz mono = ~4.5ms of audio
-	wav := createMinimalWAV(100)
+	wavData := wav.CreateMinimalPiper(100)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	pcm, err := conv.ConvertToDiscordPCM(ctx, wav)
+	pcm, err := conv.ConvertToDiscordPCM(ctx, wavData)
 	if err != nil {
 		t.Fatalf("ConvertToDiscordPCM() error = %v", err)
 	}
@@ -110,55 +112,6 @@ func TestConverter_ConvertToDiscordPCM_ValidWAV(t *testing.T) {
 	if len(pcm) == 0 {
 		t.Error("ConvertToDiscordPCM() returned empty output")
 	}
-}
-
-// createMinimalWAV creates a minimal valid WAV file with the specified number of samples.
-// The WAV is 22050 Hz, mono, 16-bit (matching Piper output).
-func createMinimalWAV(numSamples int) []byte {
-	sampleRate := 22050
-	channels := 1
-	bitsPerSample := 16
-	bytesPerSample := bitsPerSample / 8
-	dataSize := numSamples * channels * bytesPerSample
-	fileSize := 36 + dataSize
-
-	wav := make([]byte, 44+dataSize)
-
-	// RIFF header
-	copy(wav[0:4], "RIFF")
-	writeLE32(wav[4:8], uint32(fileSize))
-	copy(wav[8:12], "WAVE")
-
-	// fmt chunk
-	copy(wav[12:16], "fmt ")
-	writeLE32(wav[16:20], 16)                              // chunk size
-	writeLE16(wav[20:22], 1)                               // audio format (PCM)
-	writeLE16(wav[22:24], uint16(channels))                // num channels
-	writeLE32(wav[24:28], uint32(sampleRate))              // sample rate
-	writeLE32(wav[28:32], uint32(sampleRate*channels*2))   // byte rate
-	writeLE16(wav[32:34], uint16(channels*bytesPerSample)) // block align
-	writeLE16(wav[34:36], uint16(bitsPerSample))           // bits per sample
-
-	// data chunk
-	copy(wav[36:40], "data")
-	writeLE32(wav[40:44], uint32(dataSize))
-
-	// Fill with silence (zeros)
-	// Already zero-initialized
-
-	return wav
-}
-
-func writeLE16(b []byte, v uint16) {
-	b[0] = byte(v)
-	b[1] = byte(v >> 8)
-}
-
-func writeLE32(b []byte, v uint32) {
-	b[0] = byte(v)
-	b[1] = byte(v >> 8)
-	b[2] = byte(v >> 16)
-	b[3] = byte(v >> 24)
 }
 
 func TestPCMFrameReader_ReadFrame(t *testing.T) {

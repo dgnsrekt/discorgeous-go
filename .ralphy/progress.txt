@@ -331,3 +331,35 @@
 - `go test ./...` - PASSED
 - `go vet ./...` - PASSED
 - `gofmt -l .` - No issues
+
+## 2026-02-04: Task 4 - Code cleanup (dedupe helpers/errors)
+
+### Completed:
+- Created shared WAV utility package (`internal/wav/wav.go`):
+  - `WrapRawPCM()` function to add WAV header to raw PCM data
+  - `PutLE16()` and `PutLE32()` little-endian helper functions (exported)
+  - `CreateMinimal()` and `CreateMinimalPiper()` for test WAV generation
+  - Named constants: `HeaderSize`, `FormatPCM`, `PiperSampleRate`, `PiperChannels`, `PiperBitsPerSample`
+- Wrote comprehensive tests for the wav package (`internal/wav/wav_test.go`)
+- Updated `internal/tts/piper.go` to use shared wav package:
+  - Removed duplicate `wrapRawPCMAsWAV()`, `putLE16()`, `putLE32()` functions
+  - Now uses `wav.WrapRawPCM()` and wav constants
+- Updated `internal/tts/piper_test.go`:
+  - Removed redundant WAV tests (now covered by wav package tests)
+  - Added test to verify Piper uses correct wav package constants
+- Updated `internal/audio/converter_test.go` to use shared wav package:
+  - Removed duplicate `createMinimalWAV()`, `writeLE16()`, `writeLE32()` functions
+  - Now uses `wav.CreateMinimalPiper()` for test WAV generation
+- Renamed `ErrSynthesisFailed` in `internal/playback/handler.go`:
+  - Now `ErrPlaybackSynthesisFailed` to differentiate from `tts.ErrSynthesisFailed`
+  - Updated handler_test.go to use renamed error
+- Added named constants to `internal/discord/voice.go`:
+  - `voiceConnectTimeout` (10s)
+  - `voiceConnectPollInterval` (100ms)
+  - `frameDuration` (20ms)
+  - `maxOpusDataBytes` (4000)
+
+### Verification:
+- `go test ./...` - PASSED
+- `go vet ./...` - PASSED
+- `gofmt -l .` - No issues
