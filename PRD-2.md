@@ -64,8 +64,8 @@ Tighten up discorgeous-go based on PR review feedback by:
 - [x] Add graceful shutdown: on Stop(), disconnect from voice if connected.
 
 ### Task 6: Documentation updates
-- [ ] Add a short note explaining discordgo pseudo-version pin (Discord voice encryption mode compatibility) and how to update later.
-- [ ] Ensure docker-compose does not fight `.env` for PIPER_MODEL; pick a single source of truth and document it.
+- [x] Add a short note explaining discordgo pseudo-version pin (Discord voice encryption mode compatibility) and how to update later.
+- [x] Ensure docker-compose does not fight `.env` for PIPER_MODEL; pick a single source of truth and document it.
 
 ## Test plan
 - Commands that must pass:

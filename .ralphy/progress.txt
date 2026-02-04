@@ -404,3 +404,24 @@
 - `go test ./...` - PASSED
 - `go vet ./...` - PASSED
 - `gofmt -l .` - No issues
+
+## 2026-02-04: Task 6 - Documentation updates
+
+### Completed:
+- Verified discordgo pseudo-version pin explanation already exists in README.md:
+  - Located in "Dependency Notes" section (lines 185-190)
+  - Explains why the pseudo-version is used (Discord voice encryption compatibility)
+  - Documents how to update later (`go get github.com/bwmarrin/discordgo@<new-version>`)
+- Verified PIPER_MODEL single source of truth is already documented:
+  - README.md Quick Start section (lines 59-67) explains docker-compose.yml is the source of truth
+  - docker-compose.yml (lines 14-16) has comments explaining the configuration
+  - Documentation notes that .env PIPER_MODEL will be overridden by docker-compose.yml
+
+### Notes:
+- Both documentation items were completed as part of Task 1 but Task 6 was not marked complete
+- This task marks Task 6 as complete after verification
+
+### Verification:
+- `go test ./...` - PASSED
+- `go vet ./...` - PASSED
+- `gofmt -l .` - No issues
