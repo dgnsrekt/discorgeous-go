@@ -64,7 +64,7 @@ Forwarded request body:
   - `depends_on: discorgeous` and use internal network URL `http://discorgeous:8080`.
   - Ensure no model files are required in relay.
 
-### Task 3 — Documentation
+### Task 3 — Documentation ✅
 - Update `README.md`:
   - Add section: “ntfy relay sidecar”.
   - Provide `.env` example entries (in `.env.example`, safe defaults, no secrets).

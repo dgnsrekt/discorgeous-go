@@ -145,6 +145,61 @@ curl -X POST http://localhost:8080/v1/speak \
   -d '{"text": "This will only queue once", "dedupe_key": "unique-key-123"}'
 ```
 
+## Ntfy Relay Sidecar (Optional)
+
+The ntfy relay is an optional sidecar that subscribes to [ntfy](https://ntfy.sh) topics and forwards messages to Discorgeous for speech synthesis. This allows you to trigger TTS announcements from anywhere by publishing to an ntfy topic.
+
+### Setup
+
+1. **Configure environment variables** in your `.env`:
+
+```bash
+# Required for relay
+NTFY_TOPICS=my-alerts,my-notifications
+DISCORGEOUS_BEARER_TOKEN=your_secret_bearer_token_here
+
+# Optional settings
+NTFY_SERVER=https://ntfy.sh           # Default: https://ntfy.sh
+NTFY_PREFIX=[Alert]                   # Prefix added to all messages
+NTFY_INTERRUPT=false                  # Interrupt current speech
+NTFY_DEDUPE_WINDOW=5s                 # Prevent duplicate messages
+NTFY_MAX_TEXT_LENGTH=1000             # Truncate long messages
+```
+
+2. **Start with the relay profile**:
+
+```bash
+docker compose --profile relay up -d
+```
+
+### Publishing Messages
+
+Send a message to your ntfy topic and it will be spoken in Discord:
+
+```bash
+# Simple message
+curl -d "Server backup complete" https://ntfy.sh/my-alerts
+
+# With title (spoken as "title: message")
+curl -H "Title: Deployment" -d "Production deploy finished" https://ntfy.sh/my-alerts
+
+# Using ntfy CLI
+ntfy publish my-alerts "Hello from ntfy"
+```
+
+### Relay Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NTFY_SERVER` | `https://ntfy.sh` | Ntfy server URL |
+| `NTFY_TOPICS` | (required) | Comma-separated list of topics to subscribe |
+| `DISCORGEOUS_API_URL` | `http://discorgeous:8080` | Discorgeous API URL (auto-configured in Docker) |
+| `DISCORGEOUS_BEARER_TOKEN` | (required) | Bearer token (must match `BEARER_TOKEN`) |
+| `NTFY_PREFIX` | (none) | Prefix added to all spoken messages |
+| `NTFY_INTERRUPT` | `false` | Interrupt current playback for new messages |
+| `NTFY_DEDUPE_WINDOW` | `0s` | Window for deduplicating identical messages |
+| `NTFY_MAX_TEXT_LENGTH` | `1000` | Maximum text length before truncation |
+
 ## Configuration
 
 All configuration is via environment variables:
