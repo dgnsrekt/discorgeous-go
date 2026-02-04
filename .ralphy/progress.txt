@@ -139,3 +139,62 @@
 - `go test ./...` - PASSED
 - `go vet ./...` - PASSED
 - `gofmt -l .` - No issues
+
+## 2026-02-04: Task 5 - Audio pipeline to Discord voice
+
+### Completed:
+- Implemented audio converter (`internal/audio/converter.go`) with:
+  - `Converter` struct wrapping ffmpeg for audio format conversion
+  - `NewConverter()` validates ffmpeg is available in PATH
+  - `ConvertToDiscordPCM()` converts any WAV to Discord-ready format:
+    - Input: WAV file bytes (any sample rate, mono or stereo)
+    - Output: Raw PCM (48kHz, stereo, 16-bit signed little-endian)
+  - `PCMFrameReader` for reading Discord-sized frames (960 samples * 2 channels * 2 bytes = 3840 bytes per 20ms frame)
+  - Discord audio constants: DiscordSampleRate (48000), DiscordChannels (2), DiscordFrameSize (960), DiscordFrameBytes (3840)
+  - Context cancellation support for interrupts
+- Implemented Discord voice manager (`internal/discord/voice.go`) with:
+  - `VoiceManager` struct managing Discord session and voice connection
+  - Uses bwmarrin/discordgo library for Discord API
+  - Uses layeh.com/gopus for Opus encoding
+  - `NewVoiceManager()` creates session and initializes Opus encoder
+  - `Open()`/`Close()` for session lifecycle
+  - `Connect(ctx)` joins configured voice channel with timeout
+  - `Disconnect()` leaves voice channel
+  - `IsConnected()` checks connection status
+  - `SendAudio(ctx, pcmData)` streams PCM to Discord:
+    - Reads frames using PCMFrameReader
+    - Encodes each frame to Opus using gopus
+    - Sends via VoiceConnection.OpusSend channel
+    - 20ms frame timing with ticker
+    - Context cancellation for interrupt support
+  - Error types: ErrNotConnected, ErrAlreadyConnected, ErrConnectionFailed
+- Implemented playback handler (`internal/playback/handler.go`) with:
+  - `Handler` struct wiring TTS registry, audio converter, and voice manager
+  - `Handle(ctx, job)` implements the full speech playback pipeline:
+    1. Get default TTS engine from registry
+    2. Synthesize text to audio (WAV)
+    3. Convert audio to Discord PCM (48kHz stereo)
+    4. Auto-connect to voice channel if not connected
+    5. Stream audio to Discord voice
+  - Error types: ErrNoTTSEngine, ErrSynthesisFailed, ErrConversionFailed
+  - Comprehensive logging at each step
+  - Context cancellation support throughout
+- Updated main.go to wire full audio pipeline:
+  - Initialize TTS registry with Piper engine
+  - Initialize audio converter
+  - Initialize Discord voice manager (when credentials configured)
+  - Create playback handler and set as queue handler
+  - Idle callback disconnects from voice channel
+  - Fallback handler logs when pipeline not fully configured
+- Added new dependencies:
+  - github.com/bwmarrin/discordgo v0.28.1 - Discord API client
+  - layeh.com/gopus - Opus audio encoder
+- Wrote comprehensive tests:
+  - `internal/audio/converter_test.go`: Tests for converter creation, PCM conversion (valid WAV, invalid WAV, empty input, context cancellation), PCMFrameReader (full frames, partial frames, reset), Discord constants
+  - `internal/discord/voice_test.go`: Tests for error types, IsConnected, SendAudio when not connected, Disconnect when not connected
+  - `internal/playback/handler_test.go`: Tests for error types, NewHandler, Handle with no TTS engine, Handle with synthesis failure
+
+### Verification:
+- `go test ./...` - PASSED
+- `go vet ./...` - PASSED
+- `gofmt -l .` - No issues (after formatting fix)

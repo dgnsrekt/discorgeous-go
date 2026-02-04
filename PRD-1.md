@@ -77,9 +77,9 @@ Start with a proven Go Discord library voice sender path. If voice send is too b
 - [x] Decide audio artifact contract (WAV on disk or stream) and implement
 
 ### Task 5: Audio pipeline to Discord voice
-- [ ] Convert Piper output to Discord-ready stream (likely via ffmpeg to 48k stereo PCM)
-- [ ] Encode/stream to Discord voice using chosen library OR Lavalink
-- [ ] Basic integration tests (smoke test command + manual runbook)
+- [x] Convert Piper output to Discord-ready stream (likely via ffmpeg to 48k stereo PCM)
+- [x] Encode/stream to Discord voice using chosen library OR Lavalink
+- [x] Basic integration tests (smoke test command + manual runbook)
 
 ### Task 6: Docker + docs
 - [ ] Dockerfile (multi-stage) including runtime deps (piper, ffmpeg, certs)
