@@ -11,7 +11,8 @@ services:
       # Mount your Piper model files here
       - ./models:/app/models:ro
     environment:
-      # Override piper model path to use mounted models
+      # PIPER_MODEL: Set your model filename here (single source of truth)
+      # Update to match your downloaded model in ./models/
       - PIPER_MODEL=/app/models/en_US-amy-medium.onnx
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/v1/healthz"]

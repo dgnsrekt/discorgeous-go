@@ -250,3 +250,37 @@
 
 ### Status:
 **ALL TASKS COMPLETE** - PRD-1 implementation is finished.
+
+---
+
+## PRD-2: Address review feedback
+
+## 2026-02-04: Task 1 - Go/Docker/toolchain consistency
+
+### Completed:
+- Verified Go version consistency:
+  - go.mod: `go 1.25.6`
+  - Dockerfile: `golang:1.25-bookworm`
+- Verified Dockerfile builder has CGO deps for gopus:
+  - pkg-config ✓
+  - libopus-dev ✓
+- Verified runtime stage has only runtime deps:
+  - ca-certificates ✓
+  - ffmpeg ✓
+  - libopus0 ✓
+  - wget (needed for healthcheck) ✓
+- Updated README Development section:
+  - Changed Go version requirement from "1.23+" to "1.25+"
+  - Added platform-specific Opus installation instructions (macOS, Debian/Ubuntu, Fedora)
+  - Added Go Toolchain section explaining version requirements
+  - Added Dependency Notes section explaining discordgo pseudo-version pin and how to update it
+- Updated README Quick Start section:
+  - Added PIPER_MODEL configuration documentation
+  - Documented that docker-compose.yml is the single source of truth for PIPER_MODEL
+- Updated docker-compose.yml:
+  - Added clarifying comments for PIPER_MODEL configuration
+
+### Verification:
+- `go test ./...` - PASSED
+- `go vet ./...` - PASSED
+- `gofmt -l .` - No issues

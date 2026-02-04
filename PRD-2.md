@@ -39,10 +39,10 @@ Tighten up discorgeous-go based on PR review feedback by:
 ## Implementation tasks
 
 ### Task 1: Go/Docker/toolchain consistency
-- [ ] Decide and enforce a supported Go version for the repo (update go.mod and Dockerfile builder image accordingly).
-- [ ] Ensure Dockerfile builder includes all CGO deps needed for gopus (pkg-config, libopus-dev).
-- [ ] Ensure runtime stage includes only runtime deps (ffmpeg, libopus0, ca-certs, etc.).
-- [ ] Update README "Development" section with required packages and Go version.
+- [x] Decide and enforce a supported Go version for the repo (update go.mod and Dockerfile builder image accordingly).
+- [x] Ensure Dockerfile builder includes all CGO deps needed for gopus (pkg-config, libopus-dev).
+- [x] Ensure runtime stage includes only runtime deps (ffmpeg, libopus0, ca-certs, etc.).
+- [x] Update README "Development" section with required packages and Go version.
 
 ### Task 2: Safer config + startup warnings
 - [ ] If BEARER_TOKEN is empty, log a WARN at startup indicating HTTP auth is disabled.

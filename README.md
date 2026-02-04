@@ -56,6 +56,16 @@ cp .env.example .env
 # Edit .env with your values
 ```
 
+**Important: PIPER_MODEL configuration**
+
+The `PIPER_MODEL` path is set in **docker-compose.yml** (not `.env`) as the single source of truth:
+```yaml
+environment:
+  - PIPER_MODEL=/app/models/en_US-amy-medium.onnx
+```
+
+Update this line to match your downloaded model filename. The `.env` file's `PIPER_MODEL` value (if present) will be overridden by docker-compose.yml.
+
 ### 5. Run with Docker Compose
 
 ```bash
@@ -160,10 +170,24 @@ All configuration is via environment variables:
 
 ### Prerequisites
 
-- Go 1.23+
-- ffmpeg
-- piper binary
-- Opus development libraries (`libopus-dev`)
+- **Go 1.25+** (required for module compatibility)
+- ffmpeg (for audio format conversion)
+- piper binary (for TTS synthesis)
+- Opus development libraries:
+  - macOS: `brew install opus pkg-config`
+  - Debian/Ubuntu: `apt-get install libopus-dev pkg-config`
+  - Fedora: `dnf install opus-devel pkgconf-pkg-config`
+
+### Go Toolchain
+
+This project requires Go 1.25 or later. The `go.mod` file specifies `go 1.25.6`.
+
+### Dependency Notes
+
+**discordgo pseudo-version pin**: The `go.mod` pins discordgo to a specific commit (`v0.29.1-0.20251229161010-9f6aa8159fc6`) rather than a tagged release. This is required because:
+- Discord updated their voice encryption protocol
+- The official tagged releases don't yet include the encryption compatibility fix
+- To update later, check for a new release that includes voice encryption support, then run `go get github.com/bwmarrin/discordgo@<new-version>`
 
 ### Build
 
