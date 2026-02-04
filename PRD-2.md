@@ -49,8 +49,8 @@ Tighten up discorgeous-go based on PR review feedback by:
 - [ ] (Optional) Add a config flag to require auth even in dev, if desired.
 
 ### Task 3: Deterministic queue/playback tests
-- [ ] Remove/replace time.Sleep synchronization in queue tests with deterministic signals.
-- [ ] Use timeouts only as test failsafes (e.g., context with deadline) rather than primary synchronization.
+- [x] Remove/replace time.Sleep synchronization in queue tests with deterministic signals.
+- [x] Use timeouts only as test failsafes (e.g., context with deadline) rather than primary synchronization.
 
 ### Task 4: Code cleanup (dedupe helpers/errors)
 - [ ] Consolidate duplicate WAV little-endian helper functions into a shared internal utility.

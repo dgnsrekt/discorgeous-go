@@ -24,21 +24,25 @@ type PlaybackHandler func(ctx context.Context, job *SpeakJob) error
 // IdleCallback is called when the queue becomes idle.
 type IdleCallback func()
 
+// JobCompletedCallback is called after each job completes (for testing).
+type JobCompletedCallback func(job *SpeakJob)
+
 // Queue is a bounded queue with a single playback worker.
 type Queue struct {
-	mu            sync.Mutex
-	jobs          []*SpeakJob
-	capacity      int
-	dedupeKeys    map[string]bool
-	logger        *slog.Logger
-	closed        bool
-	idleTimeout   time.Duration
-	idleCallback  IdleCallback
-	playbackFunc  PlaybackHandler
-	cancelCurrent context.CancelFunc
-	wg            sync.WaitGroup
-	stopCh        chan struct{}
-	enqueueCh     chan struct{}
+	mu                   sync.Mutex
+	jobs                 []*SpeakJob
+	capacity             int
+	dedupeKeys           map[string]bool
+	logger               *slog.Logger
+	closed               bool
+	idleTimeout          time.Duration
+	idleCallback         IdleCallback
+	jobCompletedCallback JobCompletedCallback
+	playbackFunc         PlaybackHandler
+	cancelCurrent        context.CancelFunc
+	wg                   sync.WaitGroup
+	stopCh               chan struct{}
+	enqueueCh            chan struct{}
 }
 
 // NewQueue creates a new bounded queue.
@@ -66,6 +70,14 @@ func (q *Queue) SetIdleCallback(fn IdleCallback) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	q.idleCallback = fn
+}
+
+// SetJobCompletedCallback sets the function called after each job completes.
+// This is primarily useful for testing to enable deterministic synchronization.
+func (q *Queue) SetJobCompletedCallback(fn JobCompletedCallback) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	q.jobCompletedCallback = fn
 }
 
 // Enqueue adds a job to the queue.
@@ -246,7 +258,13 @@ func (q *Queue) processJob(job *SpeakJob) {
 		cancel()
 		q.mu.Lock()
 		q.cancelCurrent = nil
+		completedCallback := q.jobCompletedCallback
 		q.mu.Unlock()
+
+		// Notify completion callback after releasing lock
+		if completedCallback != nil {
+			completedCallback(job)
+		}
 	}()
 
 	if handler == nil {

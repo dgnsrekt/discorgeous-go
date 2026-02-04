@@ -303,3 +303,31 @@
 - `go test ./...` - PASSED
 - `go vet ./...` - PASSED
 - `gofmt -l .` - No issues
+
+## 2026-02-04: Task 3 - Deterministic queue/playback tests
+
+### Completed:
+- Added `JobCompletedCallback` type and field to Queue (`internal/queue/queue.go`):
+  - Callback is invoked after each job completes (or is skipped)
+  - Enables deterministic test synchronization without time.Sleep
+- Added `SetJobCompletedCallback()` method to Queue for test registration
+- Refactored all queue tests (`internal/queue/queue_test.go`) to be deterministic:
+  - Replaced all `time.Sleep` synchronization with channel-based waiting
+  - Added `testTimeout` constant (5 seconds) as failsafe for all tests
+  - `TestWorkerProcessesJobs`: Uses `JobCompletedCallback` to signal when all 3 jobs complete
+  - `TestWorkerSkipsExpiredJobs`: Uses 1ns TTL (guarantees immediate expiry) + callback
+  - `TestWorkerCancelCurrentJob`: Uses callback to wait for cancellation completion
+  - `TestIdleCallback`: Uses callback to wait for job completion before idle timer
+  - `TestIdleCallbackNotCalledWhileProcessing`: Uses channel to control processing duration
+  - `TestNoPlaybackHandler`: Uses callback to confirm job was processed (skipped)
+  - `TestDedupeKeyRemovedAfterProcessing`: Uses callback to wait between enqueues
+
+### Design notes:
+- Primary synchronization via channels (deterministic)
+- Timeouts only as failsafes, not for timing-based synchronization
+- Follows PRD-2 design notes: "Prefer deterministic synchronization primitives"
+
+### Verification:
+- `go test ./...` - PASSED
+- `go vet ./...` - PASSED
+- `gofmt -l .` - No issues
