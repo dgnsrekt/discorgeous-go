@@ -18,11 +18,14 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build the binary with optimizations
+# Build the main binary with optimizations (requires CGO for opus)
 RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-s -w" -o /discorgeous ./cmd/discorgeous
 
+# Build the ntfy-relay binary (pure Go, no CGO needed)
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /ntfy-relay ./cmd/ntfy-relay
+
 # Runtime stage: minimal image with runtime dependencies
-FROM debian:bookworm-slim
+FROM debian:bookworm-slim AS discorgeous
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -54,11 +57,12 @@ RUN case "${TARGETARCH}" in \
 # Create models directory (users will mount their models here)
 RUN mkdir -p /app/models && chown discorgeous:discorgeous /app/models
 
-# Copy binary from builder
+# Copy binaries from builder
 COPY --from=builder /discorgeous /app/discorgeous
+COPY --from=builder /ntfy-relay /app/ntfy-relay
 
 # Set ownership
-RUN chown discorgeous:discorgeous /app/discorgeous
+RUN chown discorgeous:discorgeous /app/discorgeous /app/ntfy-relay
 
 # Switch to non-root user
 USER discorgeous
@@ -75,3 +79,32 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
 
 # Run the application
 ENTRYPOINT ["/app/discorgeous"]
+
+# =============================================================================
+# Relay runtime stage: minimal image for ntfy-relay (no piper, ffmpeg, models)
+# =============================================================================
+FROM debian:bookworm-slim AS relay
+
+# Install only essential runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user for security
+RUN useradd -r -s /bin/false relay
+
+WORKDIR /app
+
+# Copy only the relay binary from builder
+COPY --from=builder /ntfy-relay /app/ntfy-relay
+
+# Set ownership
+RUN chown relay:relay /app/ntfy-relay
+
+# Switch to non-root user
+USER relay
+
+# No ports exposed (relay is outbound-only client)
+
+# Run the relay
+ENTRYPOINT ["/app/ntfy-relay"]
