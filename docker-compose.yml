@@ -12,7 +12,7 @@ services:
       - ./models:/app/models:ro
     environment:
       # Override piper model path to use mounted models
-      - PIPER_MODEL=/app/models/en_US-lessac-medium.onnx
+      - PIPER_MODEL=/app/models/en_US-amy-medium.onnx
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/v1/healthz"]
       interval: 30s

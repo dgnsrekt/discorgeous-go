@@ -1,2 +1,16 @@
 # Local Ralphy config (machine-specific)
 .ralphy/config.yaml
+
+# Environment / secrets
+.env
+
+# Local builds
+/discorgeous
+
+# Voice models (large assets; mount locally)
+/models/*.onnx
+/models/*.onnx.json
+
+# OS junk
+.DS_Store
+**/.DS_Store

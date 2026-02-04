@@ -1,0 +1,14 @@
+# Keep docker build context small and avoid leaking secrets
+.git
+.env
+
+# Local artifacts
+.DS_Store
+**/.DS_Store
+/discorgeous
+
+# Large voice models (they're mounted at runtime via ./models)
+/models
+
+# Dev-only
+.ralphy

@@ -1,9 +1,15 @@
 # syntax=docker/dockerfile:1
 
 # Build stage: compile the Go binary
-FROM golang:1.23-bookworm AS builder
+FROM golang:1.25-bookworm AS builder
 
 WORKDIR /app
+
+# Build dependencies (CGO)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config \
+    libopus-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy go mod files first for better caching
 COPY go.mod go.sum ./
@@ -36,8 +42,8 @@ WORKDIR /app
 ARG PIPER_VERSION=2023.11.14-2
 ARG TARGETARCH
 RUN case "${TARGETARCH}" in \
-        amd64) PIPER_ARCH="amd64" ;; \
-        arm64) PIPER_ARCH="arm64" ;; \
+        amd64) PIPER_ARCH="x86_64" ;; \
+        arm64) PIPER_ARCH="aarch64" ;; \
         *) echo "Unsupported architecture: ${TARGETARCH}" && exit 1 ;; \
     esac && \
     wget -q "https://github.com/rhasspy/piper/releases/download/${PIPER_VERSION}/piper_linux_${PIPER_ARCH}.tar.gz" -O /tmp/piper.tar.gz && \
