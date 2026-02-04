@@ -56,9 +56,9 @@ Start with a proven Go Discord library voice sender path. If voice send is too b
 ## Implementation tasks
 
 ### Task 1: Project scaffold + config
-- [ ] Create Go module, basic directory layout (`cmd/`, `internal/`)
-- [ ] Add config loader from env (with sane defaults)
-- [ ] Add structured logging
+- [x] Create Go module, basic directory layout (`cmd/`, `internal/`)
+- [x] Add config loader from env (with sane defaults)
+- [x] Add structured logging
 
 ### Task 2: HTTP enqueue API
 - [ ] Implement HTTP server + routes `/v1/speak`, `/v1/healthz`

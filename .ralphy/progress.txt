@@ -1,0 +1,27 @@
+# Ralphy Progress Log
+
+## 2026-02-04: Task 1 - Project scaffold + config
+
+### Completed:
+- Created Go module `github.com/dgnsrekt/discorgeous-go`
+- Set up directory structure: `cmd/discorgeous/`, `internal/config/`, `internal/logging/`
+- Implemented config loader (`internal/config/config.go`) with:
+  - Environment variable loading for Discord, HTTP, TTS, and behavior settings
+  - Sane defaults (port 8080, 5m idle timeout, 1000 max text length, etc.)
+  - Validation for all config values
+  - Helper functions for parsing env vars (string, int, duration)
+- Implemented structured logging (`internal/logging/logging.go`) using Go's `log/slog`:
+  - Supports text and JSON output formats
+  - Configurable log levels (debug, info, warn, error)
+- Created main entry point (`cmd/discorgeous/main.go`) with:
+  - Config loading and validation
+  - Logger initialization
+  - Graceful shutdown handling (SIGINT/SIGTERM)
+- Wrote comprehensive tests:
+  - `internal/config/config_test.go`: Tests for Load(), Validate(), and helper functions
+  - `internal/logging/logging_test.go`: Tests for New() and ParseLevel()
+
+### Verification:
+- `go test ./...` - PASSED
+- `go vet ./...` - PASSED
+- `gofmt -l .` - No issues (after formatting fix)
