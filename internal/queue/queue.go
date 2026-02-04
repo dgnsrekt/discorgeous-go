@@ -24,6 +24,9 @@ type PlaybackHandler func(ctx context.Context, job *SpeakJob) error
 // IdleCallback is called when the queue becomes idle.
 type IdleCallback func()
 
+// ShutdownCallback is called during graceful shutdown to clean up resources.
+type ShutdownCallback func()
+
 // JobCompletedCallback is called after each job completes (for testing).
 type JobCompletedCallback func(job *SpeakJob)
 
@@ -37,6 +40,7 @@ type Queue struct {
 	closed               bool
 	idleTimeout          time.Duration
 	idleCallback         IdleCallback
+	shutdownCallback     ShutdownCallback
 	jobCompletedCallback JobCompletedCallback
 	playbackFunc         PlaybackHandler
 	cancelCurrent        context.CancelFunc
@@ -70,6 +74,14 @@ func (q *Queue) SetIdleCallback(fn IdleCallback) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	q.idleCallback = fn
+}
+
+// SetShutdownCallback sets the function called during graceful shutdown.
+// This is typically used to disconnect from voice channels.
+func (q *Queue) SetShutdownCallback(fn ShutdownCallback) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	q.shutdownCallback = fn
 }
 
 // SetJobCompletedCallback sets the function called after each job completes.
@@ -146,17 +158,24 @@ func (q *Queue) Start() {
 	go q.worker()
 }
 
-// Stop gracefully stops the worker.
+// Stop gracefully stops the worker and calls the shutdown callback.
 func (q *Queue) Stop() {
 	q.mu.Lock()
 	q.closed = true
 	if q.cancelCurrent != nil {
 		q.cancelCurrent()
 	}
+	shutdownCallback := q.shutdownCallback
 	q.mu.Unlock()
 
 	close(q.stopCh)
 	q.wg.Wait()
+
+	// Call shutdown callback after worker has stopped
+	if shutdownCallback != nil {
+		q.logger.Info("calling shutdown callback")
+		shutdownCallback()
+	}
 }
 
 // worker is the single playback goroutine.

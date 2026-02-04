@@ -58,10 +58,10 @@ Tighten up discorgeous-go based on PR review feedback by:
 - [x] Replace magic numbers with named constants where appropriate.
 
 ### Task 5: Voice connect/reconnect + shutdown reliability
-- [ ] Replace voice readiness polling with a context-aware wait (no unbounded loops).
-- [ ] Improve error propagation/logging for speaking state and voice websocket errors.
-- [ ] Add minimal reconnect logic or a bounded retry on voice connect failure.
-- [ ] Add graceful shutdown: on Stop(), disconnect from voice if connected.
+- [x] Replace voice readiness polling with a context-aware wait (no unbounded loops).
+- [x] Improve error propagation/logging for speaking state and voice websocket errors.
+- [x] Add minimal reconnect logic or a bounded retry on voice connect failure.
+- [x] Add graceful shutdown: on Stop(), disconnect from voice if connected.
 
 ### Task 6: Documentation updates
 - [ ] Add a short note explaining discordgo pseudo-version pin (Discord voice encryption mode compatibility) and how to update later.

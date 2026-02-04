@@ -468,3 +468,73 @@ func TestDedupeKeyRemovedAfterProcessing(t *testing.T) {
 		t.Errorf("expected 2 processed jobs, got %d", processedCount.Load())
 	}
 }
+
+func TestShutdownCallback(t *testing.T) {
+	q := NewQueue(10, 5*time.Minute, testLogger())
+
+	var shutdownCalled atomic.Bool
+
+	q.SetShutdownCallback(func() {
+		shutdownCalled.Store(true)
+	})
+
+	q.SetPlaybackHandler(func(ctx context.Context, job *SpeakJob) error {
+		return nil
+	})
+
+	q.Start()
+	q.Stop()
+
+	if !shutdownCalled.Load() {
+		t.Error("shutdown callback was not called")
+	}
+}
+
+func TestShutdownCallbackCalledAfterWorkerStops(t *testing.T) {
+	q := NewQueue(10, 5*time.Minute, testLogger())
+
+	var workerStopped atomic.Bool
+	var shutdownCalledAfterWorker atomic.Bool
+	workerRunning := make(chan struct{})
+
+	q.SetPlaybackHandler(func(ctx context.Context, job *SpeakJob) error {
+		// Signal worker is running
+		select {
+		case <-workerRunning:
+		default:
+			close(workerRunning)
+		}
+		// Wait for cancellation
+		<-ctx.Done()
+		// Add a small sleep to verify shutdown waits for worker
+		time.Sleep(10 * time.Millisecond)
+		workerStopped.Store(true)
+		return ctx.Err()
+	})
+
+	q.SetShutdownCallback(func() {
+		if workerStopped.Load() {
+			shutdownCalledAfterWorker.Store(true)
+		}
+	})
+
+	q.Start()
+
+	// Enqueue a job
+	q.Enqueue(NewSpeakJob("Hello", "default", false, 0, ""))
+
+	// Wait for worker to start processing
+	select {
+	case <-workerRunning:
+		// Worker is running
+	case <-time.After(testTimeout):
+		t.Fatal("timeout waiting for worker to start")
+	}
+
+	// Stop should wait for worker and then call shutdown callback
+	q.Stop()
+
+	if !shutdownCalledAfterWorker.Load() {
+		t.Error("shutdown callback was called before worker stopped")
+	}
+}

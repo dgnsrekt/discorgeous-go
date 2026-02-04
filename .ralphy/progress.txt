@@ -363,3 +363,44 @@
 - `go test ./...` - PASSED
 - `go vet ./...` - PASSED
 - `gofmt -l .` - No issues
+
+## 2026-02-04: Task 5 - Voice connect/reconnect + shutdown reliability
+
+### Completed:
+- Replaced voice readiness polling with context-aware wait (`internal/discord/voice.go`):
+  - Added `waitForReady()` method using `context.WithTimeout` instead of manual deadline checking
+  - Uses ticker-based polling with select statement for proper context cancellation
+  - No unbounded loops - all waits are bounded by context deadline
+- Improved error propagation/logging for speaking state (`internal/discord/voice.go`):
+  - Added `ErrSpeakingFailed` error type
+  - `SendAudio()` now returns error when `Speaking(true)` fails (was previously logged only)
+  - Enhanced logging with structured fields (`action`, `frames_sent`, `reason`)
+  - Differentiated logging levels: Error for start_speaking failures, Warn for stop_speaking
+- Added bounded retry logic for voice connection (`internal/discord/voice.go`):
+  - Added `maxConnectRetries` constant (3 attempts)
+  - Added `connectRetryDelay` constant (1 second between retries)
+  - `Connect()` now retries up to 3 times with backoff
+  - Respects context cancellation between retries
+  - Detailed logging for each attempt and failure
+  - Final error combines `ErrConnectionFailed` with underlying error via `errors.Join`
+- Added graceful shutdown with voice disconnection:
+  - Added `ShutdownCallback` type to `internal/queue/queue.go`
+  - Added `SetShutdownCallback()` method to Queue
+  - `Stop()` now calls shutdown callback after worker stops
+  - Updated `main.go` to set shutdown callback that disconnects from voice if connected
+- Added comprehensive tests:
+  - `TestErrSpeakingFailed` for new error type
+  - `TestConstants` to verify all named constants
+  - `TestShutdownCallback` to verify callback is called
+  - `TestShutdownCallbackCalledAfterWorkerStops` to verify ordering
+
+### Design notes:
+- Context-aware waiting uses `context.WithTimeout` wrapping parent context
+- Retry logic uses select with `time.After` to allow cancellation during delay
+- Shutdown callback runs after `wg.Wait()` to ensure all workers have stopped
+- Frame counting in SendAudio for better debugging
+
+### Verification:
+- `go test ./...` - PASSED
+- `go vet ./...` - PASSED
+- `gofmt -l .` - No issues

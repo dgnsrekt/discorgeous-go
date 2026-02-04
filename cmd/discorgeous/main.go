@@ -123,6 +123,18 @@ func main() {
 		}
 	})
 
+	// Set shutdown callback to disconnect from voice during graceful shutdown
+	speechQueue.SetShutdownCallback(func() {
+		logger.Info("shutdown: disconnecting from voice channel if connected")
+		if voiceManager != nil && voiceManager.IsConnected() {
+			if err := voiceManager.Disconnect(); err != nil {
+				logger.Error("failed to disconnect from voice during shutdown", "error", err)
+			} else {
+				logger.Info("disconnected from voice channel during shutdown")
+			}
+		}
+	})
+
 	// Set playback handler
 	defaultEngine, _ := ttsRegistry.Default()
 	if voiceManager != nil && audioConv != nil && defaultEngine != nil {
