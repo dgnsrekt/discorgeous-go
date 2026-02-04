@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/dgnsrekt/discorgeous-go/internal/config"
+	"github.com/dgnsrekt/discorgeous-go/internal/queue"
 )
 
 // Server handles HTTP API requests.
@@ -15,13 +16,15 @@ type Server struct {
 	cfg    *config.Config
 	logger *slog.Logger
 	server *http.Server
+	queue  *queue.Queue
 }
 
 // New creates a new API server.
-func New(cfg *config.Config, logger *slog.Logger) *Server {
+func New(cfg *config.Config, logger *slog.Logger, q *queue.Queue) *Server {
 	s := &Server{
 		cfg:    cfg,
 		logger: logger,
+		queue:  q,
 	}
 
 	mux := http.NewServeMux()

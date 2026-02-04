@@ -54,3 +54,47 @@
 - `go test ./...` - PASSED
 - `go vet ./...` - PASSED
 - `gofmt -l .` - No issues
+
+## 2026-02-04: Task 3 - Queue + playback worker
+
+### Completed:
+- Implemented SpeakJob type (`internal/queue/job.go`) with:
+  - Unique job ID generation using google/uuid
+  - Text, voice, interrupt, TTL, dedupe_key fields
+  - CreatedAt/ExpiresAt timestamps
+  - IsExpired() method for TTL checking
+- Implemented bounded queue (`internal/queue/queue.go`) with:
+  - Configurable capacity limit (ErrQueueFull when exceeded)
+  - Dedupe key tracking (ErrDuplicateJob for duplicates)
+  - Thread-safe enqueue/dequeue operations
+  - Len() method for queue depth reporting
+- Implemented single playback worker goroutine with:
+  - SetPlaybackHandler() for TTS integration point
+  - Sequential job processing (FIFO order)
+  - Automatic skipping of expired jobs
+  - Start()/Stop() lifecycle methods
+- Implemented interrupt semantics with:
+  - Interrupt() method cancels current playback via context
+  - Clears all pending jobs from queue
+  - Resets dedupe key tracking
+- Implemented auto-leave idle timer with:
+  - Configurable idle timeout (from config.AutoLeaveIdle)
+  - SetIdleCallback() for voice disconnect integration
+  - Timer resets when new jobs are processed
+  - Timer paused during active playback
+- Integrated queue with API handlers:
+  - Updated Server to accept queue parameter
+  - handleSpeak() now creates real jobs with unique IDs
+  - Handles ErrQueueFull (503), ErrDuplicateJob (409)
+  - Interrupt flag triggers queue.Interrupt() before enqueue
+  - TTL applied from request or config default
+- Updated main.go to wire up queue with placeholder handlers
+- Wrote comprehensive tests:
+  - `internal/queue/job_test.go`: Tests for job creation, expiry, uniqueness
+  - `internal/queue/queue_test.go`: Tests for enqueue, capacity, dedupe, interrupt, worker processing, expired job skipping, cancellation, idle callback
+  - Updated `internal/api/server_test.go` to use queue
+
+### Verification:
+- `go test ./...` - PASSED
+- `go vet ./...` - PASSED
+- `gofmt -l .` - No issues

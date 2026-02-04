@@ -66,10 +66,10 @@ Start with a proven Go Discord library voice sender path. If voice send is too b
 - [x] Validate payload: max text length, TTL, queue capacity
 
 ### Task 3: Queue + playback worker
-- [ ] Implement bounded queue and speak job type
-- [ ] Implement single playback goroutine
-- [ ] Implement interrupt semantics
-- [ ] Implement auto-leave idle timer
+- [x] Implement bounded queue and speak job type
+- [x] Implement single playback goroutine
+- [x] Implement interrupt semantics
+- [x] Implement auto-leave idle timer
 
 ### Task 4: TTS engine (Piper)
 - [ ] Implement `TTSEngine` + registry

@@ -2,7 +2,11 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+	"time"
+
+	"github.com/dgnsrekt/discorgeous-go/internal/queue"
 )
 
 // SpeakRequest represents the request body for /v1/speak.
@@ -76,9 +80,43 @@ func (s *Server) handleSpeak(w http.ResponseWriter, r *http.Request) {
 		voice = s.cfg.DefaultVoice
 	}
 
-	// TODO: In Task 3, this will enqueue to the actual queue.
-	// For now, just log and return a placeholder response.
-	s.logger.Info("speak request received",
+	// Convert TTL from milliseconds to duration
+	var ttl time.Duration
+	if req.TTLMS > 0 {
+		ttl = time.Duration(req.TTLMS) * time.Millisecond
+	} else if s.cfg.DefaultTTL > 0 {
+		ttl = s.cfg.DefaultTTL
+	}
+
+	// Handle interrupt: cancel current playback and clear queue
+	if req.Interrupt && s.queue != nil {
+		s.queue.Interrupt()
+	}
+
+	// Create and enqueue the job
+	job := queue.NewSpeakJob(req.Text, voice, req.Interrupt, ttl, req.DedupeKey)
+
+	if s.queue != nil {
+		if err := s.queue.Enqueue(job); err != nil {
+			if errors.Is(err, queue.ErrQueueFull) {
+				w.WriteHeader(http.StatusServiceUnavailable)
+				json.NewEncoder(w).Encode(ErrorResponse{Error: "queue is full"})
+				return
+			}
+			if errors.Is(err, queue.ErrDuplicateJob) {
+				w.WriteHeader(http.StatusConflict)
+				json.NewEncoder(w).Encode(ErrorResponse{Error: "duplicate job"})
+				return
+			}
+			s.logger.Error("failed to enqueue job", "error", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(ErrorResponse{Error: "failed to enqueue job"})
+			return
+		}
+	}
+
+	s.logger.Info("speak request enqueued",
+		"job_id", job.ID,
 		"text_length", len(req.Text),
 		"voice", voice,
 		"interrupt", req.Interrupt,
@@ -86,10 +124,9 @@ func (s *Server) handleSpeak(w http.ResponseWriter, r *http.Request) {
 		"dedupe_key", req.DedupeKey,
 	)
 
-	// Return success response with placeholder job ID
 	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(SpeakResponse{
-		JobID:   "placeholder-job-id",
+		JobID:   job.ID,
 		Message: "job enqueued",
 	})
 }

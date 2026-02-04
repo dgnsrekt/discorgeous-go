@@ -10,6 +10,7 @@ import (
 	"github.com/dgnsrekt/discorgeous-go/internal/api"
 	"github.com/dgnsrekt/discorgeous-go/internal/config"
 	"github.com/dgnsrekt/discorgeous-go/internal/logging"
+	"github.com/dgnsrekt/discorgeous-go/internal/queue"
 )
 
 func main() {
@@ -48,8 +49,25 @@ func main() {
 		cancel()
 	}()
 
+	// Create and start the speech queue
+	speechQueue := queue.NewQueue(cfg.QueueCapacity, cfg.AutoLeaveIdle, logger)
+
+	// Set idle callback (will disconnect from voice in Task 5)
+	speechQueue.SetIdleCallback(func() {
+		logger.Info("queue idle, would disconnect from voice channel")
+	})
+
+	// Set placeholder playback handler (TTS engine in Task 4)
+	speechQueue.SetPlaybackHandler(func(ctx context.Context, job *queue.SpeakJob) error {
+		logger.Info("would play speech", "job_id", job.ID, "text", job.Text, "voice", job.Voice)
+		return nil
+	})
+
+	speechQueue.Start()
+	defer speechQueue.Stop()
+
 	// Create and start HTTP server
-	server := api.New(cfg, logger)
+	server := api.New(cfg, logger, speechQueue)
 
 	go func() {
 		if err := server.Start(); err != nil {

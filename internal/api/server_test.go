@@ -6,9 +6,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/dgnsrekt/discorgeous-go/internal/config"
 	"github.com/dgnsrekt/discorgeous-go/internal/logging"
+	"github.com/dgnsrekt/discorgeous-go/internal/queue"
 )
 
 func testConfig() *config.Config {
@@ -25,7 +27,8 @@ func testConfig() *config.Config {
 
 func testServer(cfg *config.Config) *Server {
 	logger := logging.New("error", "text") // quiet logger for tests
-	return New(cfg, logger)
+	q := queue.NewQueue(cfg.QueueCapacity, 5*time.Minute, logger)
+	return New(cfg, logger, q)
 }
 
 func TestHealthz(t *testing.T) {
