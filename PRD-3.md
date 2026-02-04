@@ -57,7 +57,7 @@ Forwarded request body:
   - Reconnect loop with backoff and context cancellation.
   - Structured logs.
 
-### Task 2 — Add Docker support for relay
+### Task 2 — Add Docker support for relay ✅
 - Update `Dockerfile` to build a second binary for relay.
 - Update `docker-compose.yml`:
   - Add `ntfy-relay` service using the same image (or a small second image) and run the relay binary.

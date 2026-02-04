@@ -20,3 +20,22 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
+
+  # Optional ntfy relay sidecar - subscribes to ntfy topics and forwards to discorgeous
+  # Uncomment and configure NTFY_TOPICS in .env to enable
+  ntfy-relay:
+    build:
+      context: .
+      target: relay
+    container_name: ntfy-relay
+    restart: unless-stopped
+    depends_on:
+      discorgeous:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      # Override API URL to use internal Docker network
+      - DISCORGEOUS_API_URL=http://discorgeous:8080
+    profiles:
+      - relay  # Only starts with: docker compose --profile relay up
