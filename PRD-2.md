@@ -80,9 +80,9 @@ Tighten up discorgeous-go based on PR review feedback by:
   - confirm bot joins VC, speaks, and auto-leaves after idle
 
 ## Acceptance checklist
-- [ ] Tests pass reliably
-- [ ] Docker build succeeds
-- [ ] Startup warnings are clear
-- [ ] Voice connection handling is more robust
-- [ ] Docs updated
-- [ ] Changes committed on a branch and pushed
+- [x] Tests pass reliably
+- [x] Docker build succeeds
+- [x] Startup warnings are clear
+- [x] Voice connection handling is more robust
+- [x] Docs updated
+- [x] Changes committed on a branch and pushed
