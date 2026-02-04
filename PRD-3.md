@@ -70,7 +70,7 @@ Forwarded request body:
   - Provide `.env` example entries (in `.env.example`, safe defaults, no secrets).
   - Include an example ntfy publish command and expected behavior.
 
-### Task 4 — Tests
+### Task 4 — Tests ✅
 - Unit tests for:
   - config parsing (env → config)
   - dedupe logic (if implemented)
