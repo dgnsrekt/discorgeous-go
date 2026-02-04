@@ -1,6 +1,8 @@
 services:
   discorgeous:
-    build: .
+    build:
+      context: .
+      target: discorgeous
     container_name: discorgeous
     restart: unless-stopped
     ports:

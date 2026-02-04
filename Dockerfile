@@ -25,7 +25,7 @@ RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-s -w" -o /discorgeous ./cmd/dis
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /ntfy-relay ./cmd/ntfy-relay
 
 # Runtime stage: minimal image with runtime dependencies
-FROM debian:bookworm-slim
+FROM debian:bookworm-slim AS discorgeous
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
