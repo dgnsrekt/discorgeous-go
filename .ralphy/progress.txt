@@ -98,3 +98,44 @@
 - `go test ./...` - PASSED
 - `go vet ./...` - PASSED
 - `gofmt -l .` - No issues
+
+## 2026-02-04: Task 4 - TTS engine (Piper)
+
+### Completed:
+- Implemented `Engine` interface (`internal/tts/engine.go`) with:
+  - `SynthesizeRequest` struct containing text and voice parameters
+  - `AudioResult` struct with data bytes, format, sample rate, and channels
+  - `Reader()` method on AudioResult for streaming audio data
+  - `Engine` interface with `Synthesize(ctx, req)` and `Name()` methods
+- Implemented TTS engine registry (`internal/tts/registry.go`) with:
+  - `NewRegistry()` constructor
+  - `Register()` to add engines (first registered becomes default)
+  - `Get()` to retrieve engine by name
+  - `Default()` to get the default engine
+  - `SetDefault()` to change the default engine
+  - `List()` to enumerate all registered engine names
+  - Thread-safe operations with sync.RWMutex
+  - Error types: ErrEngineNotFound, ErrEngineExists
+- Implemented `PiperEngine` (`internal/tts/piper.go`) with:
+  - Configuration struct for binary path, model path, and default voice
+  - Binary existence validation using exec.LookPath
+  - Model path validation (required)
+  - Synthesize() invokes piper with --model and --output-raw flags
+  - Optional --speaker flag for voice selection
+  - Context cancellation support for interrupts
+  - Raw PCM output wrapped in WAV header for consistent format
+  - Helper functions for WAV header generation (wrapRawPCMAsWAV)
+  - Error types: ErrPiperNotFound, ErrNoModelSpecified, ErrSynthesisFailed
+- Audio artifact contract decision: In-memory WAV bytes (not file-based)
+  - AudioResult.Data contains full WAV with 44-byte header
+  - Piper outputs raw 16-bit PCM at 22050 Hz mono
+  - WAV wrapper added for format consistency
+- Wrote comprehensive tests:
+  - `internal/tts/engine_test.go`: AudioResult reader tests, empty data handling
+  - `internal/tts/registry_test.go`: Register, Get, Default, SetDefault, List tests
+  - `internal/tts/piper_test.go`: Name, configuration validation, WAV header generation tests
+
+### Verification:
+- `go test ./...` - PASSED
+- `go vet ./...` - PASSED
+- `gofmt -l .` - No issues

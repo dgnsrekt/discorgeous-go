@@ -72,9 +72,9 @@ Start with a proven Go Discord library voice sender path. If voice send is too b
 - [x] Implement auto-leave idle timer
 
 ### Task 4: TTS engine (Piper)
-- [ ] Implement `TTSEngine` + registry
-- [ ] Implement `PiperEngine` invoking local `piper` binary
-- [ ] Decide audio artifact contract (WAV on disk or stream) and implement
+- [x] Implement `TTSEngine` + registry
+- [x] Implement `PiperEngine` invoking local `piper` binary
+- [x] Decide audio artifact contract (WAV on disk or stream) and implement
 
 ### Task 5: Audio pipeline to Discord voice
 - [ ] Convert Piper output to Discord-ready stream (likely via ffmpeg to 48k stereo PCM)
