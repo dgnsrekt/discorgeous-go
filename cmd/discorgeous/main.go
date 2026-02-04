@@ -30,6 +30,11 @@ func main() {
 	logger := logging.New(cfg.LogLevel, cfg.LogFormat)
 	logger.Info("starting discorgeous", "version", "0.1.0")
 
+	// Warn if bearer token auth is disabled
+	if cfg.AuthDisabled() {
+		logger.Warn("HTTP bearer authentication is disabled (BEARER_TOKEN is empty)")
+	}
+
 	// Log loaded configuration (without sensitive values)
 	logger.Info("configuration loaded",
 		"log_level", cfg.LogLevel,

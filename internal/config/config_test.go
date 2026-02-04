@@ -237,3 +237,38 @@ func TestGetEnvDuration(t *testing.T) {
 		t.Errorf("getEnvDuration() = %v, want 10s for invalid input", got)
 	}
 }
+
+func TestAuthDisabled(t *testing.T) {
+	tests := []struct {
+		name        string
+		bearerToken string
+		want        bool
+	}{
+		{
+			name:        "empty token means auth disabled",
+			bearerToken: "",
+			want:        true,
+		},
+		{
+			name:        "non-empty token means auth enabled",
+			bearerToken: "secret-token",
+			want:        false,
+		},
+		{
+			name:        "whitespace-only token is treated as set",
+			bearerToken: "   ",
+			want:        false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := &Config{
+				BearerToken: tt.bearerToken,
+			}
+			if got := cfg.AuthDisabled(); got != tt.want {
+				t.Errorf("AuthDisabled() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

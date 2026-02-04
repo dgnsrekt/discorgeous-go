@@ -45,7 +45,7 @@ Tighten up discorgeous-go based on PR review feedback by:
 - [x] Update README "Development" section with required packages and Go version.
 
 ### Task 2: Safer config + startup warnings
-- [ ] If BEARER_TOKEN is empty, log a WARN at startup indicating HTTP auth is disabled.
+- [x] If BEARER_TOKEN is empty, log a WARN at startup indicating HTTP auth is disabled.
 - [ ] (Optional) Add a config flag to require auth even in dev, if desired.
 
 ### Task 3: Deterministic queue/playback tests

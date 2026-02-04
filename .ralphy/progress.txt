@@ -284,3 +284,22 @@
 - `go test ./...` - PASSED
 - `go vet ./...` - PASSED
 - `gofmt -l .` - No issues
+
+## 2026-02-04: Task 2 - Safer config + startup warnings
+
+### Completed:
+- Added `AuthDisabled()` method to Config struct (`internal/config/config.go`):
+  - Returns true when BEARER_TOKEN is empty
+  - Simple helper for checking authentication status
+- Added startup warning in `main.go`:
+  - Logs WARN message when HTTP bearer auth is disabled
+  - Message: "HTTP bearer authentication is disabled (BEARER_TOKEN is empty)"
+- Added tests for `AuthDisabled()` method (`internal/config/config_test.go`):
+  - Tests empty token (auth disabled)
+  - Tests non-empty token (auth enabled)
+  - Tests whitespace-only token (treated as set)
+
+### Verification:
+- `go test ./...` - PASSED
+- `go vet ./...` - PASSED
+- `gofmt -l .` - No issues

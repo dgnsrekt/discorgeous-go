@@ -69,6 +69,11 @@ func Load() (*Config, error) {
 	return cfg, nil
 }
 
+// AuthDisabled returns true if bearer token authentication is disabled.
+func (c *Config) AuthDisabled() bool {
+	return c.BearerToken == ""
+}
+
 // Validate checks that required configuration values are set.
 func (c *Config) Validate() error {
 	// For initial scaffold, we don't require Discord settings
