@@ -97,10 +97,10 @@ Manual smoke test:
 - `curl POST /v1/speak` and confirm audio plays in configured voice channel.
 
 ## Acceptance checklist
-- [ ] HTTP enqueue works with bearer auth
-- [ ] Auto-join + speak + auto-leave works
-- [ ] Piper used locally; TTS interface is pluggable
-- [ ] `go test ./...` and `go vet ./...` pass
-- [ ] Docker build succeeds
-- [ ] README + docker-compose included
-- [ ] Changes committed on a branch and pushed
+- [x] HTTP enqueue works with bearer auth
+- [x] Auto-join + speak + auto-leave works
+- [x] Piper used locally; TTS interface is pluggable
+- [x] `go test ./...` and `go vet ./...` pass
+- [x] Docker build succeeds
+- [x] README + docker-compose included
+- [x] Changes committed on a branch and pushed
