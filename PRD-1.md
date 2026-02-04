@@ -82,9 +82,9 @@ Start with a proven Go Discord library voice sender path. If voice send is too b
 - [x] Basic integration tests (smoke test command + manual runbook)
 
 ### Task 6: Docker + docs
-- [ ] Dockerfile (multi-stage) including runtime deps (piper, ffmpeg, certs)
-- [ ] docker-compose example + env template
-- [ ] README: setup, permissions, commands, HTTP API examples
+- [x] Dockerfile (multi-stage) including runtime deps (piper, ffmpeg, certs)
+- [x] docker-compose example + env template
+- [x] README: setup, permissions, commands, HTTP API examples
 
 ## Test plan
 Commands that must pass:

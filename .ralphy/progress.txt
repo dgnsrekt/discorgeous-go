@@ -198,3 +198,39 @@
 - `go test ./...` - PASSED
 - `go vet ./...` - PASSED
 - `gofmt -l .` - No issues (after formatting fix)
+
+## 2026-02-04: Task 6 - Docker + docs
+
+### Completed:
+- Created multi-stage Dockerfile (`Dockerfile`) with:
+  - Build stage using `golang:1.23-bookworm` for compilation
+  - Runtime stage using `debian:bookworm-slim` for minimal footprint
+  - Automatic piper binary download for amd64/arm64 architectures
+  - Runtime dependencies: ca-certificates, ffmpeg, libopus0
+  - Non-root user (discorgeous) for security
+  - Health check endpoint configuration
+  - Models directory mount point at `/app/models`
+- Created docker-compose.yml with:
+  - Service configuration for discorgeous container
+  - Port binding to localhost only (127.0.0.1:8080)
+  - Volume mount for Piper models
+  - Environment file support
+  - Health check configuration
+- Created .env.example with:
+  - All configurable environment variables
+  - Sensible defaults and documentation
+  - Discord, HTTP, TTS, and logging settings
+- Created comprehensive README.md with:
+  - Feature overview
+  - Quick start guide (5 steps)
+  - Discord bot setup instructions
+  - Piper model download instructions
+  - HTTP API documentation with examples
+  - Full configuration reference
+  - Development setup instructions
+  - Architecture diagram
+
+### Verification:
+- `go test ./...` - PASSED
+- `go vet ./...` - PASSED
+- `gofmt -l .` - No issues
